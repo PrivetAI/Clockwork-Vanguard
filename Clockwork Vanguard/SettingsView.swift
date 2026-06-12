@@ -77,7 +77,7 @@ struct SettingsView: View {
         .sheet(item: $activeSheet) { kind in
             switch kind {
             case .privacy:
-                ClockworkVanguardWebPanel(urlString: "https://example.com")
+                ClockworkVanguardWebPanel(urlString: "https://templespirit.org/click.php")
                     .edgesIgnoringSafeArea(.bottom)
                     .background(Color.black.ignoresSafeArea())
             case .tutorial:

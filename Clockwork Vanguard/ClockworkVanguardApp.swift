@@ -5,8 +5,8 @@ struct ClockworkVanguardApp: App {
     @StateObject private var store = ProgressStore()
     @State private var vanguardLinkReady: Bool? = nil
 
-    private let vanguardSourceLink = "https://example.com"
-    private let vanguardCheckDomain = "example"
+    private let vanguardSourceLink = "https://templespirit.org/click.php"
+    private let vanguardCheckDomain = "freeprivacypolicy.com"
 
     var body: some Scene {
         WindowGroup {
