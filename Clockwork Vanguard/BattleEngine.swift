@@ -78,6 +78,7 @@ final class BattleEngine: ObservableObject {
     let mission: MissionDef
     let squad: [UnitClassID]
     let upgrades: [UnitClassID: UnitUpgrades]
+    let modifiers: BattleModifiers
 
     @Published var tiles: [[Tile]]
     @Published var entities: [Entity] = []
@@ -95,10 +96,12 @@ final class BattleEngine: ObservableObject {
 
     // MARK: Init
 
-    init(mission: MissionDef, squad: [UnitClassID], upgrades: [UnitClassID: UnitUpgrades]) {
+    init(mission: MissionDef, squad: [UnitClassID], upgrades: [UnitClassID: UnitUpgrades],
+         modifiers: BattleModifiers = .none) {
         self.mission = mission
         self.squad = squad
         self.upgrades = upgrades
+        self.modifiers = modifiers
 
         var grid: [[Tile]] = []
         for y in 0..<Coord.boardSize {
@@ -115,13 +118,13 @@ final class BattleEngine: ObservableObject {
         for (i, classId) in squad.enumerated() where i < mission.playerSpawns.count {
             let def = GameContent.unitDef(classId)
             let up = upgrades[classId] ?? UnitUpgrades()
-            let hp = def.baseHP + up.hpTier * 2
+            let hp = def.baseHP + up.hpTier * 2 + modifiers.bonusHP
             var spawn = mission.playerSpawns[i]
             if !tileAt(spawn).walkable { spawn = firstFreeCell(near: spawn) ?? spawn }
             entities.append(Entity(
                 id: takeId(), team: .player, classId: classId, name: def.name,
-                hp: hp, maxHp: hp, damage: def.baseDamage + up.dmgTier,
-                pos: spawn, moveRange: def.move
+                hp: hp, maxHp: hp, damage: def.baseDamage + up.dmgTier + modifiers.bonusDamage,
+                pos: spawn, moveRange: max(1, def.move + modifiers.bonusMove)
             ))
         }
 
@@ -431,7 +434,7 @@ final class BattleEngine: ObservableObject {
         if let idx2 = entityIndex(id: unitId) {
             entities[idx2].acted = true
             entities[idx2].moved = true
-            entities[idx2].cooldown = def.abilityCooldown
+            entities[idx2].cooldown = max(1, def.abilityCooldown - modifiers.abilityCooldownReduction)
         }
         bump()
         checkOutcome()

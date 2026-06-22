@@ -167,6 +167,7 @@ enum GameContent {
         RegionDef(id: 2, name: "Gearspine Mines", tagline: "Crumbling galleries above a dark, ticking deep.", starsRequired: 24),
         RegionDef(id: 3, name: "Patina Bastion", tagline: "The old fortress, green with age and bristling with guns.", starsRequired: 40),
         RegionDef(id: 4, name: "The Chronoforge", tagline: "Where the Archon winds the war like a watch.", starsRequired: 58),
+        RegionDef(id: 5, name: "The Reckoning", tagline: "The Chronoforge is broken, but its children still march on the citadel.", starsRequired: 74),
     ]
 
     // MARK: Achievements
@@ -178,9 +179,10 @@ enum GameContent {
         AchievementDef(id: "region2", name: "Gearspine Cleared", detail: "Defeat the Cog Colossus and clear the Gearspine Mines."),
         AchievementDef(id: "region3", name: "Bastion Broken", detail: "Clear Patina Bastion."),
         AchievementDef(id: "region4", name: "Chronoforge Sealed", detail: "Defeat the Chrono Archon and clear The Chronoforge."),
+        AchievementDef(id: "region5", name: "The Reckoning", detail: "Clear The Reckoning and end the uprising."),
         AchievementDef(id: "stars30", name: "Polished Brass", detail: "Earn 30 mission stars."),
         AchievementDef(id: "stars60", name: "Gleaming Cohort", detail: "Earn 60 mission stars."),
-        AchievementDef(id: "stars120", name: "Immaculate Campaign", detail: "Earn all 120 mission stars."),
+        AchievementDef(id: "stars120", name: "Immaculate Campaign", detail: "Earn all 144 mission stars."),
         AchievementDef(id: "pitKill", name: "Long Way Down", detail: "Shove an enemy into a pit."),
         AchievementDef(id: "hazard10", name: "Industrial Accident", detail: "Destroy 10 enemies with hazards."),
         AchievementDef(id: "redirect", name: "Friendly Crossfire", detail: "Make an enemy destroy another enemy."),
@@ -189,9 +191,14 @@ enum GameContent {
         AchievementDef(id: "maxUnit", name: "Masterwork", detail: "Fully upgrade one unit."),
         AchievementDef(id: "allUnits", name: "Full Roster", detail: "Unlock all six unit classes."),
         AchievementDef(id: "wins10", name: "Seasoned Commander", detail: "Win 10 missions."),
-        AchievementDef(id: "wins40", name: "Campaign Veteran", detail: "Win all 40 missions."),
+        AchievementDef(id: "wins40", name: "Campaign Veteran", detail: "Win all 48 missions."),
         AchievementDef(id: "kills100", name: "Scrapheap Mountain", detail: "Destroy 100 enemies."),
         AchievementDef(id: "bonus20", name: "Perfectionist", detail: "Complete 20 bonus objectives."),
+        AchievementDef(id: "skirmishWin", name: "Free Company", detail: "Win your first Skirmish battle."),
+        AchievementDef(id: "endless8", name: "Deep Gauntlet", detail: "Reach depth 8 in the Endless Gauntlet."),
+        AchievementDef(id: "daily5", name: "Daily Drill", detail: "Complete 5 Daily Operations."),
+        AchievementDef(id: "fullDoctrine", name: "Doctrine Set", detail: "Equip a full doctrine loadout."),
+        AchievementDef(id: "allDoctrines", name: "Field Manual", detail: "Acquire every Vanguard Doctrine."),
     ]
 
     // MARK: Hazard codex blurbs

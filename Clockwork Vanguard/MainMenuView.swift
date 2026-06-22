@@ -46,8 +46,14 @@ struct MainMenuView: View {
                             NavigationLink(destination: RegionMapView()) {
                                 bigRow(title: "Campaign", subtitle: campaignSubtitle, glyph: .campaign, prominent: true)
                             }
+                            NavigationLink(destination: SkirmishView()) {
+                                bigRow(title: "Skirmish", subtitle: skirmishSubtitle, glyph: .campaign)
+                            }
                             NavigationLink(destination: HangarView()) {
                                 bigRow(title: "Hangar", subtitle: "Upgrade your machines", glyph: .hangar)
+                            }
+                            NavigationLink(destination: DoctrinesView()) {
+                                bigRow(title: "Doctrines", subtitle: doctrineSubtitle, glyph: .hangar)
                             }
                             NavigationLink(destination: CodexView()) {
                                 bigRow(title: "Codex", subtitle: "Units, enemies and hazards", glyph: .codex)
@@ -67,7 +73,7 @@ struct MainMenuView: View {
                             CoreCounter(amount: store.cores)
                             HStack(spacing: 6) {
                                 CogStarShape().fill(Theme.warning).frame(width: 15, height: 15)
-                                Text("\(store.totalStars) / 120")
+                                Text("\(store.totalStars) / 144")
                                     .font(.system(size: 15, weight: .bold, design: .monospaced))
                                     .foregroundColor(Theme.ivory)
                             }
@@ -87,7 +93,17 @@ struct MainMenuView: View {
 
     private var campaignSubtitle: String {
         let won = MissionCatalog.all.filter { store.stars(missionId: $0.id) > 0 }.count
-        return won == 0 ? "Begin the counteroffensive" : "\(won) of 40 missions won"
+        return won == 0 ? "Begin the counteroffensive" : "\(won) of 48 missions won"
+    }
+
+    private var skirmishSubtitle: String {
+        let best = store.skirmish.bestEndlessDepth
+        return best > 0 ? "Daily & Endless — best depth \(best)" : "Daily & Endless procedural battles"
+    }
+
+    private var doctrineSubtitle: String {
+        let n = store.equippedDoctrineList.count
+        return n > 0 ? "\(n) of \(DoctrineCatalog.loadoutSlots) doctrines equipped" : "Equip passive field doctrines"
     }
 
     private var achievementSubtitle: String {

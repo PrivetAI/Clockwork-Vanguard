@@ -1,6 +1,6 @@
 import Foundation
 
-// MARK: - 40 handcrafted missions (5 regions x 8)
+// MARK: - 48 handcrafted missions (6 regions x 8)
 
 enum MissionCatalog {
 
@@ -25,7 +25,7 @@ enum MissionCatalog {
         )
     }
 
-    static let all: [MissionDef] = region0 + region1 + region2 + region3 + region4
+    static let all: [MissionDef] = region0 + region1 + region2 + region3 + region4 + region5
 
     static func mission(id: Int) -> MissionDef? { all.first { $0.id == id } }
 

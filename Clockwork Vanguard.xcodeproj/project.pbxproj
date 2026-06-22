@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C0DEBF000000000000000201 /* Doctrines.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEFA000000000000000201 /* Doctrines.swift */; };
+		C0DEBF000000000000000202 /* Skirmish.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEFA000000000000000202 /* Skirmish.swift */; };
+		C0DEBF000000000000000203 /* SkirmishView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEFA000000000000000203 /* SkirmishView.swift */; };
+		C0DEBF000000000000000204 /* DoctrinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEFA000000000000000204 /* DoctrinesView.swift */; };
+		C0DEBF000000000000000205 /* MissionCatalogR5.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEFA000000000000000205 /* MissionCatalogR5.swift */; };
 		C0DEBF0000000000000001A1 /* ClockworkVanguardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEFA0000000000000001A1 /* ClockworkVanguardApp.swift */; };
 		C0DEBF0000000000000001A2 /* ClockworkVanguardWebPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEFA0000000000000001A2 /* ClockworkVanguardWebPanel.swift */; };
 		C0DEBF0000000000000001A3 /* GameModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEFA0000000000000001A3 /* GameModels.swift */; };
@@ -32,6 +37,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C0DEFA000000000000000201 /* Doctrines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Doctrines.swift; sourceTree = "<group>"; };
+		C0DEFA000000000000000202 /* Skirmish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Skirmish.swift; sourceTree = "<group>"; };
+		C0DEFA000000000000000203 /* SkirmishView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkirmishView.swift; sourceTree = "<group>"; };
+		C0DEFA000000000000000204 /* DoctrinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoctrinesView.swift; sourceTree = "<group>"; };
+		C0DEFA000000000000000205 /* MissionCatalogR5.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionCatalogR5.swift; sourceTree = "<group>"; };
 		C0DEFA0000000000000001A0 /* Clockwork Vanguard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Clockwork Vanguard.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0DEFA0000000000000001A1 /* ClockworkVanguardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockworkVanguardApp.swift; sourceTree = "<group>"; };
 		C0DEFA0000000000000001A2 /* ClockworkVanguardWebPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockworkVanguardWebPanel.swift; sourceTree = "<group>"; };
@@ -81,6 +91,11 @@
 			isa = PBXGroup;
 			children = (
 				C0DEFA0000000000000001A1 /* ClockworkVanguardApp.swift */,
+				C0DEFA000000000000000201 /* Doctrines.swift */,
+				C0DEFA000000000000000202 /* Skirmish.swift */,
+				C0DEFA000000000000000203 /* SkirmishView.swift */,
+				C0DEFA000000000000000204 /* DoctrinesView.swift */,
+				C0DEFA000000000000000205 /* MissionCatalogR5.swift */,
 				C0DEFA0000000000000001A2 /* ClockworkVanguardWebPanel.swift */,
 				C0DEFA0000000000000001A3 /* GameModels.swift */,
 				C0DEFA0000000000000001A4 /* GameContent.swift */,
@@ -185,6 +200,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				C0DEBF0000000000000001A1 /* ClockworkVanguardApp.swift in Sources */,
+				C0DEBF000000000000000201 /* Doctrines.swift in Sources */,
+				C0DEBF000000000000000202 /* Skirmish.swift in Sources */,
+				C0DEBF000000000000000203 /* SkirmishView.swift in Sources */,
+				C0DEBF000000000000000204 /* DoctrinesView.swift in Sources */,
+				C0DEBF000000000000000205 /* MissionCatalogR5.swift in Sources */,
 				C0DEBF0000000000000001A2 /* ClockworkVanguardWebPanel.swift in Sources */,
 				C0DEBF0000000000000001A3 /* GameModels.swift in Sources */,
 				C0DEBF0000000000000001A4 /* GameContent.swift in Sources */,
@@ -330,7 +350,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -358,7 +378,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;

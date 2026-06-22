@@ -15,6 +15,8 @@ struct BattleView: View {
             mission: mission,
             squad: squad,
             upgrades: store.allUpgrades,
+            modifiers: store.activeModifiers,
+            context: .campaign,
             onExit: { presentationMode.wrappedValue.dismiss() },
             onRetry: { attempt += 1 }
         )
@@ -28,8 +30,10 @@ struct BattleView: View {
 struct BattleSessionView: View {
     @EnvironmentObject var store: ProgressStore
     @StateObject private var engine: BattleEngine
+    let context: BattleContext
     let onExit: () -> Void
     let onRetry: () -> Void
+    let onSkirmishAdvance: (() -> Void)?
 
     enum ActionMode { case none, move, attack, ability }
 
@@ -37,14 +41,20 @@ struct BattleSessionView: View {
     @State private var inspectId: Int? = nil
     @State private var mode: ActionMode = .none
     @State private var reward: ProgressStore.BattleReward? = nil
+    @State private var skirmishReward: ProgressStore.SkirmishReward? = nil
     @State private var resultApplied = false
     @State private var showForfeit = false
 
     init(mission: MissionDef, squad: [UnitClassID], upgrades: [UnitClassID: UnitUpgrades],
-         onExit: @escaping () -> Void, onRetry: @escaping () -> Void) {
-        _engine = StateObject(wrappedValue: BattleEngine(mission: mission, squad: squad, upgrades: upgrades))
+         modifiers: BattleModifiers = .none, context: BattleContext = .campaign,
+         onExit: @escaping () -> Void, onRetry: @escaping () -> Void,
+         onSkirmishAdvance: (() -> Void)? = nil) {
+        _engine = StateObject(wrappedValue: BattleEngine(mission: mission, squad: squad,
+                                                         upgrades: upgrades, modifiers: modifiers))
+        self.context = context
         self.onExit = onExit
         self.onRetry = onRetry
+        self.onSkirmishAdvance = onSkirmishAdvance
     }
 
     var body: some View {
@@ -59,12 +69,24 @@ struct BattleSessionView: View {
                     portraitLayout(width: w, height: h)
                 }
                 if engine.outcome != nil {
-                    BattleResultOverlay(
-                        engine: engine,
-                        reward: reward,
-                        onContinue: { store.tapFeedback(); onExit() },
-                        onRetry: { store.tapFeedback(); onRetry() }
-                    )
+                    switch context {
+                    case .campaign:
+                        BattleResultOverlay(
+                            engine: engine,
+                            reward: reward,
+                            onContinue: { store.tapFeedback(); onExit() },
+                            onRetry: { store.tapFeedback(); onRetry() }
+                        )
+                    case .skirmish(let battle):
+                        SkirmishResultOverlay(
+                            engine: engine,
+                            battle: battle,
+                            reward: skirmishReward,
+                            onAdvance: onSkirmishAdvance.map { adv in { store.tapFeedback(); adv() } },
+                            onExit: { store.tapFeedback(); onExit() },
+                            onRetry: { store.tapFeedback(); onRetry() }
+                        )
+                    }
                 }
             }
             .frame(width: geo.size.width, height: geo.size.height)
@@ -73,11 +95,21 @@ struct BattleSessionView: View {
             guard let outcome = outcome, !resultApplied else { return }
             resultApplied = true
             if outcome.victory { store.successFeedback() } else { store.failureFeedback() }
-            reward = store.applyBattleResult(
-                mission: engine.mission, outcome: outcome,
-                battleStats: engine.battleStats, encountered: engine.encountered,
-                flawless: !engine.damageTakenByPlayer
-            )
+            switch context {
+            case .campaign:
+                reward = store.applyBattleResult(
+                    mission: engine.mission, outcome: outcome,
+                    battleStats: engine.battleStats, encountered: engine.encountered,
+                    flawless: !engine.damageTakenByPlayer
+                )
+            case .skirmish(let battle):
+                skirmishReward = store.applySkirmishResult(
+                    victory: outcome.victory, baseCores: battle.baseCores,
+                    isDaily: battle.isDaily, dayKey: battle.dayKey,
+                    depth: battle.depth, battleStats: engine.battleStats,
+                    encountered: engine.encountered
+                )
+            }
         }
         .alert(isPresented: $showForfeit) {
             Alert(

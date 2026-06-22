@@ -4,6 +4,14 @@ import UIKit
 
 // MARK: - Persisted blob
 
+struct SkirmishStats: Codable, Equatable {
+    var battlesWon: Int = 0
+    var bestEndlessDepth: Int = 0
+    var dailyCompletions: Int = 0
+    var lastDailyDay: Int = 0          // yyyymmdd of the last completed Daily Operation
+    var coresEarned: Int = 0
+}
+
 struct VanguardSaveData: Codable, Equatable {
     var missionStars: [Int: Int] = [:]          // mission id -> 0...3
     var cores: Int = 0
@@ -15,6 +23,37 @@ struct VanguardSaveData: Codable, Equatable {
     var hapticsOn: Bool = true
     var onboardingDone: Bool = false
     var lastSquad: [String] = []
+    // Enrichment additions (decoded tolerantly so older saves upgrade cleanly):
+    var doctrinesOwned: Set<String> = []
+    var doctrinesEquipped: [String] = []        // ordered, capped at the loadout size
+    var skirmish: SkirmishStats = SkirmishStats()
+
+    init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case missionStars, cores, upgrades, achievements, stats, encounteredEnemies
+        case soundOn, hapticsOn, onboardingDone, lastSquad
+        case doctrinesOwned, doctrinesEquipped, skirmish
+    }
+
+    // Tolerant decode: any key absent in an older save falls back to its default,
+    // so adding fields never wipes existing progress.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        missionStars = try c.decodeIfPresent([Int: Int].self, forKey: .missionStars) ?? [:]
+        cores = try c.decodeIfPresent(Int.self, forKey: .cores) ?? 0
+        upgrades = try c.decodeIfPresent([String: UnitUpgrades].self, forKey: .upgrades) ?? [:]
+        achievements = try c.decodeIfPresent(Set<String>.self, forKey: .achievements) ?? []
+        stats = try c.decodeIfPresent(CampaignStats.self, forKey: .stats) ?? CampaignStats()
+        encounteredEnemies = try c.decodeIfPresent(Set<String>.self, forKey: .encounteredEnemies) ?? []
+        soundOn = try c.decodeIfPresent(Bool.self, forKey: .soundOn) ?? true
+        hapticsOn = try c.decodeIfPresent(Bool.self, forKey: .hapticsOn) ?? true
+        onboardingDone = try c.decodeIfPresent(Bool.self, forKey: .onboardingDone) ?? false
+        lastSquad = try c.decodeIfPresent([String].self, forKey: .lastSquad) ?? []
+        doctrinesOwned = try c.decodeIfPresent(Set<String>.self, forKey: .doctrinesOwned) ?? []
+        doctrinesEquipped = try c.decodeIfPresent([String].self, forKey: .doctrinesEquipped) ?? []
+        skirmish = try c.decodeIfPresent(SkirmishStats.self, forKey: .skirmish) ?? SkirmishStats()
+    }
 }
 
 // MARK: - Store
@@ -178,7 +217,10 @@ final class ProgressStore: ObservableObject {
         let old = stars(missionId: mission.id)
         if outcome.victory {
             let improvement = max(0, outcome.stars - old)
-            earned = (2 + mission.region) + improvement * 3 + (outcome.bonusDone ? 2 : 0)
+            let base = (2 + mission.region) + improvement * 3 + (outcome.bonusDone ? 2 : 0)
+            let eq = equippedDoctrines
+            earned = Int((Double(base) * DoctrineCatalog.coreMultiplier(for: eq)).rounded())
+                + DoctrineCatalog.flatVictoryBonus(for: eq)
             data.cores += earned
             s.coresEarned += earned
             if outcome.stars > old {
@@ -212,10 +254,10 @@ final class ProgressStore: ObservableObject {
         var a = data.achievements
         let s = data.stats
         if s.missionsWon >= 1 { a.insert("firstWin") }
-        for r in 0..<5 where regionCleared(r) { a.insert("region\(r)") }
+        for r in 0..<6 where regionCleared(r) { a.insert("region\(r)") }
         if totalStars >= 30 { a.insert("stars30") }
         if totalStars >= 60 { a.insert("stars60") }
-        if totalStars >= 120 { a.insert("stars120") }
+        if totalStars >= 144 { a.insert("stars120") }
         if s.pitKills >= 1 { a.insert("pitKill") }
         if s.hazardKills >= 10 { a.insert("hazard10") }
         if s.redirectKills >= 1 { a.insert("redirect") }
@@ -228,6 +270,12 @@ final class ProgressStore: ObservableObject {
         if allWon { a.insert("wins40") }
         if s.enemiesDestroyed >= 100 { a.insert("kills100") }
         if s.bonusObjectives >= 20 { a.insert("bonus20") }
+        // Skirmish & doctrine milestones
+        if data.skirmish.battlesWon >= 1 { a.insert("skirmishWin") }
+        if data.skirmish.bestEndlessDepth >= 8 { a.insert("endless8") }
+        if data.skirmish.dailyCompletions >= 5 { a.insert("daily5") }
+        if data.doctrinesEquipped.count >= DoctrineCatalog.loadoutSlots { a.insert("fullDoctrine") }
+        if data.doctrinesOwned.count >= DoctrineCatalog.all.count { a.insert("allDoctrines") }
         if a != data.achievements { data.achievements = a }
     }
 
@@ -236,6 +284,108 @@ final class ProgressStore: ObservableObject {
         return u.hpTier >= UnitUpgrades.maxTier && u.dmgTier >= UnitUpgrades.maxTier
             && u.abilityTier >= UnitUpgrades.maxTier
     }
+
+    // MARK: Doctrines
+
+    var ownedDoctrines: Set<DoctrineID> {
+        Set(data.doctrinesOwned.compactMap { DoctrineID(rawValue: $0) })
+    }
+    var equippedDoctrines: Set<DoctrineID> {
+        Set(data.doctrinesEquipped.compactMap { DoctrineID(rawValue: $0) })
+    }
+    var equippedDoctrineList: [DoctrineID] {
+        data.doctrinesEquipped.compactMap { DoctrineID(rawValue: $0) }
+    }
+    func ownsDoctrine(_ id: DoctrineID) -> Bool { data.doctrinesOwned.contains(id.rawValue) }
+    func isEquipped(_ id: DoctrineID) -> Bool { data.doctrinesEquipped.contains(id.rawValue) }
+
+    var activeModifiers: BattleModifiers {
+        DoctrineCatalog.battleModifiers(for: equippedDoctrines)
+    }
+
+    @discardableResult
+    func purchaseDoctrine(_ id: DoctrineID) -> Bool {
+        guard !ownsDoctrine(id) else { return false }
+        let cost = DoctrineCatalog.def(id).cost
+        guard data.cores >= cost else { return false }
+        data.cores -= cost
+        data.doctrinesOwned.insert(id.rawValue)
+        evaluateAchievements()
+        return true
+    }
+
+    /// Toggle a doctrine in/out of the active loadout. Returns false if equipping
+    /// would exceed the slot cap (or the doctrine isn't owned).
+    @discardableResult
+    func toggleDoctrine(_ id: DoctrineID) -> Bool {
+        guard ownsDoctrine(id) else { return false }
+        if let idx = data.doctrinesEquipped.firstIndex(of: id.rawValue) {
+            data.doctrinesEquipped.remove(at: idx)
+            return true
+        }
+        guard data.doctrinesEquipped.count < DoctrineCatalog.loadoutSlots else { return false }
+        data.doctrinesEquipped.append(id.rawValue)
+        evaluateAchievements()
+        return true
+    }
+
+    // MARK: Skirmish results
+
+    var skirmish: SkirmishStats { data.skirmish }
+
+    struct SkirmishReward {
+        let coresEarned: Int
+        let newAchievements: [AchievementDef]
+        let isDaily: Bool
+        let depthReached: Int
+    }
+
+    @discardableResult
+    func applySkirmishResult(victory: Bool, baseCores: Int, isDaily: Bool, dayKey: Int,
+                             depth: Int, battleStats: CampaignStats,
+                             encountered: Set<String>) -> SkirmishReward {
+        let before = data.achievements
+
+        var s = data.stats
+        s.battlesFought += battleStats.battlesFought
+        s.enemiesDestroyed += battleStats.enemiesDestroyed
+        s.bossesDestroyed += battleStats.bossesDestroyed
+        s.hazardKills += battleStats.hazardKills
+        s.trapKills += battleStats.trapKills
+        s.redirectKills += battleStats.redirectKills
+        s.pitKills += battleStats.pitKills
+        s.collisions += battleStats.collisions
+        s.turnsPlayed += battleStats.turnsPlayed
+        data.encounteredEnemies.formUnion(encountered)
+
+        var earned = 0
+        var sk = data.skirmish
+        if victory {
+            let eq = equippedDoctrines
+            earned = Int((Double(baseCores) * DoctrineCatalog.coreMultiplier(for: eq)).rounded())
+                + DoctrineCatalog.flatVictoryBonus(for: eq)
+            data.cores += earned
+            s.coresEarned += earned
+            sk.battlesWon += 1
+            sk.coresEarned += earned
+            sk.bestEndlessDepth = max(sk.bestEndlessDepth, depth)
+            if isDaily {
+                if sk.lastDailyDay != dayKey { sk.dailyCompletions += 1 }
+                sk.lastDailyDay = dayKey
+            }
+        }
+        data.stats = s
+        data.skirmish = sk
+        evaluateAchievements()
+
+        let newOnes = data.achievements.subtracting(before)
+        let defs = GameContent.achievements.filter { newOnes.contains($0.id) }
+        return SkirmishReward(coresEarned: earned, newAchievements: defs,
+                              isDaily: isDaily, depthReached: depth)
+    }
+
+    /// True if today's Daily Operation has already been completed.
+    func dailyDone(dayKey: Int) -> Bool { data.skirmish.lastDailyDay == dayKey }
 
     // MARK: Settings
 

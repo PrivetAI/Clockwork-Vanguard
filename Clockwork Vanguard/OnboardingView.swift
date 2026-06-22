@@ -156,8 +156,8 @@ struct OnboardingView: View {
             title: "Stars and Steel",
             lines: [
                 "Earn up to 3 stars per mission: win, complete the bonus objective, and lose no units.",
-                "Stars unlock new regions and new unit classes. Five regions, forty missions, four bosses.",
-                "Spend cores in the Hangar to upgrade hull, damage, and abilities."
+                "Stars unlock new regions and new unit classes across six regions and forty-eight missions.",
+                "Spend cores in the Hangar to upgrade units, and on Vanguard Doctrines for passive perks. Then test your squad in procedural Skirmish battles."
             ])
     }
 }
